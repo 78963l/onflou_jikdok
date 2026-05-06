@@ -1,0 +1,58 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+// 교재 테이블
+model Textbook {
+  id                 Int                @id @default(autoincrement())
+  title              String             @db.VarChar(255)
+  grade              String             @db.VarChar(50)
+  unit_name          String             @db.VarChar(255)
+  original_file_name String             @db.VarChar(512)
+  file_path          String             @db.VarChar(512)
+  created_at         DateTime           @default(now())
+  updated_at         DateTime           @updatedAt
+  sentences          TextbookSentence[]
+
+  @@map("textbooks")
+}
+
+// 문장 테이블
+model TextbookSentence {
+  id               Int              @id @default(autoincrement())
+  textbook_id      Int
+  page_no          Int              @default(0)
+  sentence_order   Int              @default(0)
+  original_text    String           @db.Text
+  detected_type    String           @default("english") @db.VarChar(50)
+  status           String           @default("pending") @db.VarChar(50)
+  created_at       DateTime         @default(now())
+  updated_at       DateTime         @updatedAt
+  textbook         Textbook         @relation(fields: [textbook_id], references: [id], onDelete: Cascade)
+  chunking_results ChunkingResult[]
+
+  @@index([textbook_id])
+  @@map("textbook_sentences")
+}
+
+// 청킹 결과 테이블
+model ChunkingResult {
+  id                 Int              @id @default(autoincrement())
+  sentence_id        Int
+  level              String           @db.VarChar(10)
+  chunked_text       String?          @db.Text
+  direct_translation String?          @db.Text
+  grammar_labels     String?          @db.Text
+  ai_raw_response    String?          @db.LongText
+  created_at         DateTime         @default(now())
+  updated_at         DateTime         @updatedAt
+  sentence           TextbookSentence @relation(fields: [sentence_id], references: [id], onDelete: Cascade)
+
+  @@index([sentence_id])
+  @@map("chunking_results")
+}

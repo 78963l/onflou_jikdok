@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx create-next-app@latest jikdok-admin-tmp --javascript --tailwind --app --no-src-dir --no-turbopack --import-alias \"@/*\" --yes)",
+      "Bash(mv jikdok-admin-tmp/* .)",
+      "Bash(mv jikdok-admin-tmp/.* .)",
+      "Bash(rm -rf jikdok-admin-tmp)",
+      "Bash(npm install *)",
+      "Bash(npx prisma *)",
+      "Bash(npm run *)",
+      "Bash(npm show *)",
+      "Bash(node -e \"const p = require\\('./node_modules/@prisma/client/package.json'\\); console.log\\(Object.keys\\(p.exports || {}\\).slice\\(0, 20\\)\\)\")",
+      "Bash(node -e ' *)"
+    ]
+  }
+}
