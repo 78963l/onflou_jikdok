@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 const STATUS_OPTIONS = [
   { value: 'pending', label: '대기' },
@@ -54,6 +54,29 @@ export default function SentenceRow({
       ])
     )
   );
+
+  // sentence.chunking_results가 변경될 때마다 localChunks 업데이트 (수정 중이 아닐 때만)
+  useEffect(() => {
+    if (editing) return; // 수정 중일 때는 업데이트하지 않음
+    
+    const updatedChunkingByLevel = {};
+    for (const cr of sentence.chunking_results || []) {
+      if (!updatedChunkingByLevel[cr.level]) updatedChunkingByLevel[cr.level] = cr;
+    }
+    
+    const updatedChunks = Object.fromEntries(
+      Object.entries(updatedChunkingByLevel).map(([level, cr]) => [
+        level,
+        {
+          id: cr.id,
+          chunked_text: cr.chunked_text || '',
+          direct_translation: cr.direct_translation || '',
+          grammar_labels: cr.grammar_labels || '',
+        },
+      ])
+    );
+    setLocalChunks(updatedChunks);
+  }, [sentence.chunking_results, editing]);
 
   function handleSave() {
     onSave({ id: sentence.id, original_text: localText, status: localStatus, localChunks });
